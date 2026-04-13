@@ -14,7 +14,6 @@ def send_real_email(recipient_email, subject, body):
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            # Login using your App Password
             smtp.login("procurement.solutions259@gmail.com", "qtsmysakmrnjbvyk")
             smtp.send_message(msg)
             return True
@@ -23,30 +22,47 @@ def send_real_email(recipient_email, subject, body):
         return False
 
 def run_integrated_system():
+    # --- ✅ NEW: READ SPECS FROM DATA FOLDER ---
+    try:
+        with open('data/extracted_specs.json', 'r') as f:
+            specs = json.load(f)
+            item_name = specs.get("item", "High Pressure Valves")
+            quantity = specs.get("quantity", "500")
+    except FileNotFoundError:
+        print("⚠️ extracted_specs.json not found in data/. Using defaults.")
+        item_name = "High Pressure Valves"
+        quantity = "500"
+
     print("🚀 [PHASE 1] SOURCING VIA WIKIDATA...")
     real_companies = search_algerian_suppliers()
     
     print("\n📈 [PHASE 2] MARKET INTELLIGENCE...")
     inflation = get_algerian_market_data()
     
-    # Corrected Parenthesis here: len(real_companies)
     suppliers = [
-        {"name": real_companies[0] if len(real_companies) > 0 else "Algeria Valve", "email": "yasserkend8@gmail.com", "contact": "Mr. Yasser"},
-        {"name": real_companies[1] if len(real_companies) > 1 else "Sarl Hydro-Tech", "email": "ramykhelfaoui@gmail.com", "contact": "Mr. Ramy"},
-        {"name": real_companies[2] if len(real_companies) > 2 else "Industrie DZ", "email": "kholoudakbi@gmail.com", "contact": "Mme. Kholoud"},
-        {"name": "Mediterranean Tech", "email": "maysabendou@gmail.com", "contact": "Mme Maysa"},
-        {"name": "Industrial Parts Algiers", "email": "khelfaatr@gmail.com", "contact": "Mr. Amine"}
+        {
+            "name": real_companies[1] if len(real_companies) > 1 else "Sarl Hydro-Tech", 
+            "email": "ramykhelfaoui@gmail.com", 
+            "contact": "Mr. Ramy"
+        },
+        {
+            "name": real_companies[2] if len(real_companies) > 2 else "Industrie DZ", 
+            "email": "kholoudakbi@gmail.com", 
+            "contact": "Mme. Kholoud"
+        } 
     ]
 
     print("\n🤖 [PHASE 3] AUTONOMOUS NEGOTIATION...")
     for s in suppliers:
         print(f"Drafting for {s['name']}...")
         
+        # ✅ PROMPT UPDATED TO USE DATA FROM JSON
         prompt = (
             f"You are Khelfaoui Ramy from Algeria Industrie Solutions. "
             f"Write a formal email to {s['contact']} at {s['name']}. "
-            f"We need 500 High Pressure Valves. Mention that the current Algerian inflation is {round(inflation, 2)}%. "
+            f"We need {quantity} {item_name}. Mention that the current Algerian inflation is {round(inflation, 2)}%. "
             f"Request a competitive unit price in DZD. Sign off professionally."
+            f"STRICTLY FORBIDDEN: Do not use any placeholders. Use 'Khelfaoui Ramy' and 'Algeria Industrie Solutions'."
         )
 
         try:
@@ -59,8 +75,10 @@ def run_integrated_system():
         except Exception as e:
             print(f"❌ Error during AI generation/sending: {e}")
 
-    with open('contacted_suppliers.json', 'w') as f:
+    # ✅ SAVES TO DATA FOLDER
+    with open('data/contacted_suppliers.json', 'w') as f:
         json.dump(suppliers, f, indent=4)
+        
     print("\n🏁 [FINISH] All initial emails dispatched.")
 
 if __name__ == "__main__":

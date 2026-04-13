@@ -17,10 +17,11 @@ def parse_and_negotiate():
     print("🧠 [AI AGENT] Starting Semantic Analysis of Supplier Emails...")
     
     try:
-        with open('supplier_responses.json', 'r') as f:
+        # ✅ UPDATED PATH: Looking inside the data folder
+        with open('data/supplier_responses.json', 'r') as f:
             replies = json.load(f)
     except FileNotFoundError:
-        print("❌ Error: 'supplier_responses.json' not found. Run the listener first.")
+        print("❌ Error: 'data/supplier_responses.json' not found. Run the listener first.")
         return
 
     final_table = []
@@ -29,21 +30,26 @@ def parse_and_negotiate():
         content = reply['content']
         email_addr = reply['sender']
 
-        # THE DYNAMIC PROMPT: We tell the AI the current market base price
+        # THE DYNAMIC PROMPT: Integrated with your BASE_PRICE_MARKET and logic branches
         prompt = (
-            f"You are a Senior Procurement Analyst. Analyze this supplier email: '{content}'\n\n"
+            f"[SYSTEM: SENIOR PROCUREMENT ANALYST MODE]\n"
+            f"Analyze this supplier email: '{content}'\n\n"
+            "STRICT RULE for supplier_name:\n"
+            "- 'Algeria Industrie Solutions' is OUR company. DO NOT use it as the supplier name.\n"
+            "- Look for the supplier name in the 'From' field or the sender's specific signature.\n"
+            "- If unsure, extract the name from the email address (e.g., 'Ramy Khelfaoui').\n\n"
             f"CONTEXT:\n"
-            f"- Our reference base price is {BASE_PRICE_MARKET} DZD.\n"
-            f"- We need a specific unit price to send to our TCO calculator.\n\n"
-            f"LOGIC RULES:\n"
-            f"1. If they offer a percentage discount (e.g. 10%), calculate: {BASE_PRICE_MARKET} minus that percentage.\n"
-            f"2. If they offer a flat discount (e.g. 1000 DZD off), calculate: {BASE_PRICE_MARKET} - the number they offered e.g 1000.\n"
-            f"3. If they give a specific price (e.g. '14500 DZD'), use that number.\n"
-            f"4. If they are vague/just chatting, set status to 'INCOMPLETE'.\n"
-            f"5. If they refuse to discount or reject us, set status to 'REJECTED'.\n"
-            f"6. Otherwise, set status to 'READY'.\n\n"
-            f"Return ONLY a JSON object:\n"
-            f"{{\"supplier_name\": \"\", \"unit_price\": 0, \"status\": \"READY/INCOMPLETE/REJECTED\", \"analysis\": \"Brief reason why\"}}"
+            f"- Our reference base price is {BASE_PRICE_MARKET} DZD.\n\n"
+            f"STRICT LOGIC RULES:\n"
+            f"1. REJECTION CHECK: If the supplier is out of stock, refuses to quote, or says they are 'unable' or 'sorry', you MUST set status to 'REJECTED' and unit_price to 0.\n"
+            f"2. PERCENTAGE DISCOUNT: If they offer a % (e.g. 10%), calculate: {BASE_PRICE_MARKET} - ({BASE_PRICE_MARKET} * the pourcentage).\n"
+            f"3. FLAT DISCOUNT: If they offer a fixed amount off (e.g. 1000 DZD), calculate: {BASE_PRICE_MARKET} - 1000.\n"
+            f"4. DIRECT PRICE: If they state a specific new price (e.g. '14500 DZD'), use that exactly.\n"
+            f"5. VAGUE/CHAT: If they don't provide any numbers or specific answers, set status to 'INCOMPLETE'.\n"
+            f"6. VALID QUOTE: If a price is successfully calculated or found, set status to 'READY'.\n\n"
+            f"7. STRICT CALCULATION: You must use the EXACT percentage mentioned in the email. Do not round. If the email says 12%, you must calculate 16000 * 0.12 and subtract it.\n"
+            f"Return ONLY a raw JSON object with this exact structure:\n"
+            f"{{\"supplier_name\": \"Name\", \"unit_price\": 0, \"status\": \"READY/INCOMPLETE/REJECTED\", \"analysis\": \"Brief math or reason\"}}"
         )
 
         try:
@@ -78,8 +84,8 @@ def parse_and_negotiate():
         except Exception as e:
             print(f"❌ Failed to parse response from {email_addr}: {e}")
 
-    # Save the clean data for the TCO module
-    with open('final_offers_table.json', 'w') as f:
+    # ✅ UPDATED PATH: Saving final table into the data folder
+    with open('data/final_offers_table.json', 'w') as f:
         json.dump(final_table, f, indent=4)
     
     print(f"\n🏁 [SYSTEM] Analysis complete. {len(final_table)} offers ready for TCO.")

@@ -45,11 +45,11 @@ def fetch_emails():
                         "content": body
                     })
 
-        # Save these to the JSON file for the Parser to read
-        with open('supplier_responses.json', 'w') as f:
+        # ✅ UPDATED PATH: Save into the data sub-folder
+        with open('data/supplier_responses.json', 'w') as f:
             json.dump(responses, f, indent=4)
         
-        print(f"✅ [SUCCESS] Fetched {len(responses)} messages and saved to supplier_responses.json")
+        print(f"✅ [SUCCESS] Fetched {len(responses)} messages and saved to data/supplier_responses.json")
         mail.close()
         mail.logout()
 
