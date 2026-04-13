@@ -1,0 +1,22 @@
+[
+    {
+        "supplier": "Algeria Industrie Solutions",
+        "unit_price": 13000,
+        "email": "Kholoud Ak <kholoudakbi@gmail.com>"
+    },
+    {
+        "supplier": "Algeria Industrie Solutions",
+        "unit_price": 14500,
+        "email": "Ramy Khelfaoui <ramykhelfaoui@gmail.com>"
+    },
+    {
+        "supplier": "Algeria Industrie Solutions",
+        "unit_price": 13640,
+        "email": "Yasser Kendel <yasserkend8@gmail.com>"
+    },
+    {
+        "supplier": "Algeria Industrie Solutions",
+        "unit_price": 14500,
+        "email": "Maysa Bendou <maysabendou@gmail.com>"
+    }
+]
