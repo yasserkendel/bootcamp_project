@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INDUSTRIE IA — Extraction de Specs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0c0f;
+      --surface:   #111418;
+      --border:    #1e2530;
+      --accent:    #f0a500;
+      --accent2:   #e05c00;
+      --ok:        #00c896;
+      --err:       #ff3b3b;
+      --text:      #c8d0dc;
+      --muted:     #4a5568;
+      --mono:      'Share Tech Mono', monospace;
+      --sans:      'Barlow Condensed', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 64px;
+      background: linear-gradient(90deg, #0d1117 0%, #111820 100%);
+    }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      border: 2px solid var(--accent);
+      transform: rotate(45deg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark span {
+      transform: rotate(-45deg);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 1.35rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .logo-text span { color: var(--accent); }
+
+    .header-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+    }
+
+    /* ── Main layout ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ── Section title ── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      position: relative;
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+    }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 1px dashed var(--muted);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(240,165,0,0.04);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+      filter: grayscale(0.3);
+    }
+
+    .upload-title {
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+
+    .upload-sub {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ── File info ── */
+    .file-info {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(240,165,0,0.06);
+      border: 1px solid rgba(240,165,0,0.2);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+    .file-info.visible { display: flex; }
+    .file-info .file-name { color: var(--accent); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-info .file-size { color: var(--muted); }
+
+    /* ── Button ── */
+    .btn-extract {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--accent);
+      color: #0a0c0f;
+      border: none;
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-extract:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+    .btn-extract:not(:disabled):hover { background: #ffb800; }
+    .btn-extract:not(:disabled):active { transform: scale(0.98); }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 2px;
+      background: var(--border);
+      margin-top: 1rem;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar.visible { display: block; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width 0.3s ease;
+      animation: progress-anim 1.5s ease-in-out infinite;
+    }
+    @keyframes progress-anim {
+      0%   { width: 0%; margin-left: 0%; }
+      50%  { width: 60%; margin-left: 20%; }
+      100% { width: 0%; margin-left: 100%; }
+    }
+
+    /* ── Status ── */
+    .status-line {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      min-height: 1.2em;
+      letter-spacing: 0.03em;
+    }
+    .status-line.ok  { color: var(--ok); }
+    .status-line.err { color: var(--err); }
+
+    /* ── Result panel ── */
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .result-filename {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    .badge-ok {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--ok);
+      border: 1px solid var(--ok);
+      padding: 2px 8px;
+      letter-spacing: 0.1em;
+    }
+    .badge-err {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--err);
+      border: 1px solid var(--err);
+      padding: 2px 8px;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Spec table ── */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .spec-table tr {
+      border-bottom: 1px solid var(--border);
+      animation: row-in 0.3s ease both;
+    }
+    .spec-table tr:last-child { border-bottom: none; }
+    @keyframes row-in {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .spec-table td {
+      padding: 0.6rem 0.25rem;
+      font-size: 0.9rem;
+    }
+    .spec-table td:first-child {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      width: 45%;
+      text-transform: uppercase;
+    }
+    .spec-table td:last-child {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 1rem;
+      color: #fff;
+      letter-spacing: 0.03em;
+    }
+    .spec-table td:last-child.non-spec {
+      color: var(--muted);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* ── JSON raw view ── */
+    .json-toggle {
+      margin-top: 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--accent);
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .json-toggle:hover { color: #ffb800; }
+
+    .json-raw {
+      display: none;
+      margin-top: 0.75rem;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: #7ec8a0;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .json-raw.visible { display: block; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .empty-state .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    .empty-state p {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* ── Page title ── */
+    .page-title-block {
+      grid-column: 1 / -1;
+      margin-bottom: 0.5rem;
+    }
+    .page-title {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+    }
+    .page-title span { color: var(--accent); }
+    .page-subtitle {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Copy button ── */
+    .btn-copy {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-copy:hover { color: var(--accent); border-color: var(--accent); }
+
+    @media (max-width: 680px) {
+      main { grid-template-columns: 1fr; }
+      .page-title { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"><span>IA</span></div>
+  <div class="logo-text">INDUSTRIE <span>IA</span></div>
+  <div class="header-badge">MODULE 1 — EXTRACTION</div>
+</header>
+
+<main>
+  <!-- Page title -->
+  <div class="page-title-block">
+    <div class="page-title">Extraction de <span>Spécifications</span></div>
+    <div class="page-subtitle">// Uploadez un plan PDF — le LLM extrait les données techniques automatiquement</div>
+  </div>
+
+  <!-- Upload panel -->
+  <div class="panel">
+    <div class="section-label">01 — Importer le PDF</div>
+
+    <div class="upload-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <span class="upload-icon">📄</span>
+      <div class="upload-title">Déposer le plan PDF ici</div>
+      <div class="upload-sub">ou cliquer pour parcourir — .pdf uniquement</div>
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <span>📎</span>
+      <span class="file-name" id="fileName">—</span>
+      <span class="file-size" id="fileSize">—</span>
+    </div>
+
+    <button class="btn-extract" id="btnExtract" disabled onclick="runExtraction()">
+      ⚙ Lancer l'extraction
+    </button>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill"></div>
+    </div>
+
+    <div class="status-line" id="statusLine">En attente d'un fichier...</div>
+  </div>
+
+  <!-- Result panel -->
+  <div class="panel">
+    <div class="section-label">02 — Spécifications extraites</div>
+
+    <div id="resultContent">
+      <div class="empty-state">
+        <div class="empty-icon">🔩</div>
+        <p>Aucune extraction en cours.<br />Importez un PDF pour voir<br />les spécifications ici.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const fileInput  = document.getElementById('fileInput');
+  const dropZone   = document.getElementById('dropZone');
+  const fileInfo   = document.getElementById('fileInfo');
+  const fileName   = document.getElementById('fileName');
+  const fileSize   = document.getElementById('fileSize');
+  const btnExtract = document.getElementById('btnExtract');
+  const progressBar = document.getElementById('progressBar');
+  const statusLine = document.getElementById('statusLine');
+  const resultContent = document.getElementById('resultContent');
+
+  let selectedFile = null;
+  let jsonVisible = false;
+
+  // ── Formatage taille fichier ──────────────────────────────────────────────
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  // ── Sélection fichier ─────────────────────────────────────────────────────
+  function handleFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+      setStatus('Seuls les fichiers PDF sont acceptés.', 'err');
+      return;
+    }
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    fileInfo.classList.add('visible');
+    btnExtract.disabled = false;
+    setStatus(`Fichier prêt : ${file.name}`, '');
+    resultContent.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚙️</div>
+        <p>Cliquez sur "Lancer l'extraction"<br/>pour analyser ce PDF.</p>
+      </div>`;
+  }
+
+  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+  // ── Drag & Drop ───────────────────────────────────────────────────────────
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFile(e.dataTransfer.files[0]);
+  });
+
+  // ── Status helper ─────────────────────────────────────────────────────────
+  function setStatus(msg, type) {
+    statusLine.textContent = msg;
+    statusLine.className = 'status-line ' + (type || '');
+  }
+
+  // ── Extraction principale ─────────────────────────────────────────────────
+  async function runExtraction() {
+    if (!selectedFile) return;
+
+    btnExtract.disabled = true;
+    progressBar.classList.add('visible');
+    setStatus('Envoi du PDF au serveur...', '');
+
+    resultContent.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon" style="animation: spin 1s linear infinite; display:inline-block">⚙️</div>
+        <p>Analyse en cours...<br/>Le LLM (Mistral) analyse le PDF.<br/><span style="color:var(--accent)">Cela peut prendre 30–60 secondes.</span></p>
+      </div>`;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      setStatus('Mistral analyse le texte extrait...', '');
+
+      const response = await fetch('/api/extract', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      progressBar.classList.remove('visible');
+
+      if (data.status === 'success') {
+        setStatus(`✓ Extraction réussie — ${Object.keys(data.specs).length} champs extraits`, 'ok');
+        renderSpecs(data.specs, data.filename);
+      } else {
+        setStatus(`✗ Erreur : ${data.error}`, 'err');
+        renderError(data.error);
+      }
+
+    } catch (err) {
+      progressBar.classList.remove('visible');
+      setStatus(`✗ Impossible de contacter le serveur : ${err.message}`, 'err');
+      renderError('Serveur inaccessible. Vérifiez que FastAPI tourne sur le port 8000.');
+    } finally {
+      btnExtract.disabled = false;
+    }
+  }
+
+  // ── Affichage specs ───────────────────────────────────────────────────────
+  function renderSpecs(specs, filename) {
+    const labels = {
+      diametre_nominal:     'Diamètre nominal',
+      pression_nominale:    'Pression nominale',
+      materiau:             'Matériau',
+      longueur_face_a_face: 'Longueur face-à-face',
+      tolerance:            'Tolérance',
+      norme:                'Norme',
+    };
+
+    const rows = Object.entries(specs).map(([k, v], i) => {
+      const label = labels[k] || k.replace(/_/g, ' ');
+      const isEmpty = !v || v === 'Non spécifié';
+      return `
+        <tr style="animation-delay: ${i * 0.05}s">
+          <td>${label}</td>
+          <td class="${isEmpty ? 'non-spec' : ''}">${v || 'Non spécifié'}</td>
+        </tr>`;
+    }).join('');
+
+    const jsonStr = JSON.stringify(specs, null, 2);
+
+    resultContent.innerHTML = `
+      <div class="result-header">
+        <span class="result-filename">${filename}</span>
+        <span class="badge-ok">✓ SUCCESS</span>
+      </div>
+      <table class="spec-table">
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="display:flex; gap:0.5rem; align-items:center; margin-top:1.25rem;">
+        <button class="json-toggle" onclick="toggleJson()">
+          <span id="jsonArrow">▶</span> Voir JSON brut
+        </button>
+        <button class="btn-copy" onclick="copyJson()">COPIER</button>
+      </div>
+      <pre class="json-raw" id="jsonRaw">${jsonStr}</pre>
+    `;
+  }
+
+  // ── Affichage erreur ──────────────────────────────────────────────────────
+  function renderError(message) {
+    resultContent.innerHTML = `
+      <div class="result-header">
+        <span class="result-filename">Échec d'extraction</span>
+        <span class="badge-err">✗ ERROR</span>
+      </div>
+      <div style="margin-top:1rem; font-family:var(--mono); font-size:0.75rem; color:var(--err); line-height:1.8;">
+        ${message}
+      </div>
+      <div style="margin-top:1rem; font-family:var(--mono); font-size:0.68rem; color:var(--muted); line-height:2;">
+        Causes possibles :<br/>
+        — PDF scanné (image) sans texte<br/>
+        — Ollama non démarré<br/>
+        — Mistral non téléchargé (ollama pull mistral)
+      </div>
+    `;
+  }
+
+  // ── Toggle JSON ───────────────────────────────────────────────────────────
+  function toggleJson() {
+    const raw = document.getElementById('jsonRaw');
+    const arrow = document.getElementById('jsonArrow');
+    jsonVisible = !jsonVisible;
+    raw.classList.toggle('visible', jsonVisible);
+    arrow.textContent = jsonVisible ? '▼' : '▶';
+  }
+
+  // ── Copy JSON ─────────────────────────────────────────────────────────────
+  function copyJson() {
+    const raw = document.getElementById('jsonRaw');
+    if (!raw) return;
+    navigator.clipboard.writeText(raw.textContent).then(() => {
+      setStatus('✓ JSON copié dans le presse-papiers', 'ok');
+    });
+  }
+</script>
+
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>
+
+</body>
+</html>
