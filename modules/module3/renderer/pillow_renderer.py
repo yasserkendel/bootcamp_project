@@ -86,9 +86,22 @@ class PillowRenderer:
     # module3/renderer/pillow_renderer.py
 
     def render(self) -> Path:
-       
         import imageio
-        imageio.mimwrite(str(output_path), frames, fps=24)
+        frames = self._generate_all_frames()
+        
+        # CRITICAL: This is the line that went missing!
+        output_path = self.output_dir / f"{self.part['reference']}_presentation.mp4"
+
+        logger.info("[Pillow] Writing %d frames", len(frames))
+        
+        # Simplified and robust save block
+        imageio.mimwrite(
+            str(output_path), 
+            frames, 
+            fps=24,
+            format='FFMPEG'
+        )
+        
         return output_path
 
     # ─────────────────────────────────────────────

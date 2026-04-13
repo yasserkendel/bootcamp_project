@@ -344,73 +344,45 @@ class ManimRenderer:
             return False
 
     def render(self) -> Path:
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir)
-            scene_file = tmp_path / "valve_scene.py"
-        
-            with open(scene_file, "w", encoding="utf-8") as f:
-                f.write(self._build_scene_source())
+        """Write the scene file, run manim CLI, return output path."""
+        scene_source = self._build_scene_source()
 
-        # CRITICAL: This 'cmd' block MUST be indented inside the 'with' block 
-        # so the file still exists when subprocess runs!
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            scene_file = tmp_path / "valve_scene.py"
+            
+            with open(scene_file, "w", encoding="utf-8") as f:
+                f.write(scene_source)
+
+            output_path = self.output_dir / f"{self.part['reference']}_manim.mp4"
+
             cmd = [
                 sys.executable, "-m", "manim", "render",
                 str(scene_file),
                 "ValvePresentation",
                 "--format", "mp4",
                 "-r", "1920,1080",
-                "--fps", str(self.fps),
-                "--output_file", str(self.output_dir / f"{self.part['reference']}_manim.mp4"),
-                "--media_dir", str(tmp_path / "media"),
-                "-q", "h",
-        ]
-        
-        logger.info("[Manim] Running: %s", " ".join(cmd))
-        subprocess.run(cmd, check=True)
-        
-        # Return the path before the 'with' block ends and deletes the temp dir
-        return self.output_dir / f"{self.part['reference']}_manim.mp4"
-    
-    scene_source = self._build_scene_source()
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir)
-            scene_file = tmp / "valve_scene.py"
-            scene_file.write_text(scene_source, encoding="utf-8")
-
-            output_path = self.output_dir / f"{self.part['reference']}_manim.mp4"
-
-            cmd = [
-                sys.executable, "-m", "manim",
-                str(scene_file),
-                "ValvePresentation",
-                "--format", "mp4",
-                f"--frame_rate={self.FPS}",
-                f"--pixel_width={self.WIDTH}",
-                f"--pixel_height={self.HEIGHT}",
+                "--fps", str(self.FPS),
                 "--output_file", str(output_path.resolve()),
-                "--media_dir", str((tmp / "media").resolve()),
-                "-q", "h",   # high quality
+                "--media_dir", str((tmp_path / "media").resolve()),
+                "-q", "h",
             ]
+            
             logger.info("[Manim] Running: %s", " ".join(cmd))
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
             if result.returncode != 0:
-                raise RuntimeError(
-                    f"Manim exited {result.returncode}.\n{result.stderr[-1000:]}"
-                )
+                raise RuntimeError(f"Manim exited {result.returncode}.\n{result.stderr[-1000:]}")
 
-            # Manim writes to media/videos/... — find and copy to output_dir
             if not output_path.exists():
-                found = list(tmp.rglob("ValvePresentation.mp4"))
+                found = list(tmp_path.rglob("*.mp4"))
                 if found:
                     import shutil
                     shutil.copy2(found[0], output_path)
                 else:
-                    raise RuntimeError(
-                        "Manim completed but output MP4 not found."
-                    )
+                    raise RuntimeError("Manim completed but output MP4 not found.")
+
+        return output_path
 
 
     def _build_scene_source(self) -> str:
