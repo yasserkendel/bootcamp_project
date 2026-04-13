@@ -1,0 +1,5 @@
+version: '3.8'
+services:
+  app:
+    image: python:3.10
+    command: "echo 'Docker pas encore configuré'"
