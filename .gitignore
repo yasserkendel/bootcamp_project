@@ -1,0 +1,14 @@
+# Python junk
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# Module 2 specific outputs
+modules/module2/outputs/
+
+# OS specific
+.DS_Store
+Thumbs.db
