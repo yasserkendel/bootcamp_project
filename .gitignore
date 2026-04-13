@@ -1,14 +1,28 @@
-# Python junk
+# Python
+venv/
+.venv/
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 .pytest_cache/
-.venv/
-venv/
 
-# Module 2 specific outputs
+# Dossiers générés
+outputs/
 modules/module2/outputs/
+*.log
+*.dxf
+*.xlsx
+*.pdf
 
-# OS specific
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Données
+data/*.csv
