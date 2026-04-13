@@ -59,3 +59,26 @@ def run_cad_generation(state: PipelineState) -> PipelineState:
         "cad_outputs": cad_outputs,
         "cad_errors": cad_errors,
     }
+# ─────────────────────────────────────────────────
+# Standalone runner for Module 2
+# ─────────────────────────────────────────────────
+
+def run_standalone(state_path: str | Path) -> dict[str, Any]:
+    """Run Module 2 without the full LangGraph pipeline."""
+    import json
+    
+    # Load the current state (usually from Module 1)
+    with open(state_path, "r", encoding="utf-8") as f:
+        state = json.load(f)
+
+    # Trigger the CAD generation logic
+    # This calls the main entry point of your agent
+    result = run_cad_generation(state)
+    
+    # Print a summary for you in the terminal
+    print(f"\n✅ Module 2 Complete")
+    if "cad_outputs" in result:
+        print(f"   - DXF: {result['cad_outputs'].get('dxf')}")
+        print(f"   - IFC: {result['cad_outputs'].get('ifc')}") # <--- Verify this line
+    
+    return result
