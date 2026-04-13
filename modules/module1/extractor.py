@@ -1,6 +1,6 @@
 import json
 import pdfplumber
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 
 def extract_text_from_pdf(pdf_path: str) -> str:
