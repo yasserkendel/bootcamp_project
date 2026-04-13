@@ -1,0 +1,52 @@
+{
+  "specs": {
+    "part": {
+      "name": "Vanne industrielle haute pression",
+      "reference": "VHP-DN100-PN40",
+      "type": "gate_valve",
+      "standard": "EN 1092-1",
+      "quantity_required": 200
+    },
+    "dimensions": {
+      "nominal_diameter_mm": 100,
+      "face_to_face_mm": 250,
+      "flange_od_mm": 220,
+      "flange_thickness_mm": 22,
+      "body_height_mm": 310,
+      "bolt_circle_diameter_mm": 180,
+      "bolt_holes": 8,
+      "bolt_hole_diameter_mm": 18,
+      "wall_thickness_mm": 12,
+      "bore_diameter_mm": 100,
+      "stem_diameter_mm": 28
+    },
+    "mechanical": {
+      "nominal_pressure_bar": 40,
+      "test_pressure_bar": 60,
+      "max_temperature_c": 300,
+      "min_temperature_c": -29
+    },
+    "materials": {
+      "body": "inox_316L",
+      "disc": "inox_316L",
+      "stem": "inox_316L",
+      "seat": "stellite_6",
+      "gasket": "spiral_wound_304_graphite",
+      "bolting": "A2-70"
+    },
+    "surface_finish": {
+      "internal_roughness_ra": 1.6,
+      "flange_face": "raised_face_RF"
+    },
+    "tolerances": {
+      "bore_diameter": "H7",
+      "face_to_face": "+/- 1.5mm",
+      "flange_flatness": "0.3mm"
+    }
+  },
+  "cad_outputs": {
+    "dxf": "outputs/VHP-DN100-PN40/VHP-DN100-PN40_drawing.dxf",
+    "ifc": "outputs/VHP-DN100-PN40/VHP-DN100-PN40_3d.ifc"
+  },
+  "cad_errors": []
+}
