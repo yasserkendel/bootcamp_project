@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INDUSTRIE IA — Génération CAD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #0a0c0f;
+      --surface:  #111418;
+      --border:   #1e2530;
+      --accent:   #f0a500;
+      --accent2:  #e05c00;
+      --ok:       #00c896;
+      --err:      #ff3b3b;
+      --info:     #3b9eff;
+      --text:     #c8d0dc;
+      --muted:    #4a5568;
+      --mono:     'Share Tech Mono', monospace;
+      --sans:     'Barlow Condensed', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 64px;
+      background: linear-gradient(90deg, #0d1117 0%, #111820 100%);
+    }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      border: 2px solid var(--accent);
+      transform: rotate(45deg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark span {
+      transform: rotate(-45deg);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 1.35rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .logo-text span { color: var(--accent); }
+
+    nav {
+      display: flex;
+      gap: 0;
+      margin-left: 2rem;
+    }
+    nav a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--muted);
+      padding: 0 1rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .header-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+    }
+
+    /* ── Main ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .page-title-block {
+      grid-column: 1 / -1;
+      margin-bottom: 0.5rem;
+    }
+    .page-title {
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+    }
+    .page-title span { color: var(--accent); }
+    .page-subtitle {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Pipeline breadcrumb ── */
+    .pipeline-track {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.75rem 1.25rem;
+      overflow-x: auto;
+    }
+
+    .pip-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pip-step.done { color: var(--ok); }
+    .pip-step.active { color: var(--accent); }
+
+    .pip-step .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+    .pip-step.done .dot { background: var(--ok); }
+    .pip-step.active .dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .pip-arrow {
+      margin: 0 0.75rem;
+      color: var(--border);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      position: relative;
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+    }
+    .panel.blue::before {
+      background: linear-gradient(180deg, var(--info), #0055cc);
+    }
+    .panel.green::before {
+      background: linear-gradient(180deg, var(--ok), #006644);
+    }
+
+    /* ── Specs preview ── */
+    .specs-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .spec-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(240,165,0,0.05);
+      border: 1px solid rgba(240,165,0,0.12);
+    }
+    .spec-chip .chip-key {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .spec-chip .chip-val {
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+    .spec-chip .chip-tag {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--ok);
+      border: 1px solid rgba(0,200,150,0.3);
+      padding: 1px 6px;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Warning box ── */
+    .warning-box {
+      border: 1px solid rgba(255,59,59,0.3);
+      background: rgba(255,59,59,0.05);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--err);
+      line-height: 1.8;
+    }
+    .warning-box strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Config options ── */
+    .config-group {
+      margin-bottom: 1.25rem;
+    }
+    .config-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .format-toggles {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .format-btn {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      padding: 0.45rem 1rem;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .format-btn.selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(240,165,0,0.08);
+    }
+    .format-btn:hover:not(.selected) {
+      border-color: var(--text);
+      color: var(--text);
+    }
+
+    /* ── Button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--accent);
+      color: #0a0c0f;
+      border: none;
+      font-family: var(--sans);
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    .btn-generate:disabled { background: var(--muted); cursor: not-allowed; }
+    .btn-generate:not(:disabled):hover { background: #ffb800; }
+    .btn-generate:not(:disabled):active { transform: scale(0.98); }
+
+    /* ── Progress ── */
+    .progress-bar {
+      height: 2px;
+      background: var(--border);
+      margin-top: 1rem;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar.visible { display: block; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      animation: progress-anim 1.5s ease-in-out infinite;
+    }
+    @keyframes progress-anim {
+      0%   { width: 0%;  margin-left: 0%; }
+      50%  { width: 60%; margin-left: 20%; }
+      100% { width: 0%;  margin-left: 100%; }
+    }
+
+    .status-line {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      min-height: 1.2em;
+    }
+    .status-line.ok  { color: var(--ok); }
+    .status-line.err { color: var(--err); }
+    .status-line.info { color: var(--info); }
+
+    /* ── Result output panel ── */
+    .output-files {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s;
+      animation: card-in 0.35s ease both;
+    }
+    .file-card:hover { border-color: var(--accent); }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-icon {
+      font-size: 1.75rem;
+      flex-shrink: 0;
+      width: 40px;
+      text-align: center;
+    }
+
+    .file-meta { flex: 1; min-width: 0; }
+    .file-name {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.2rem;
+    }
+    .file-detail {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .file-size {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .badge-format {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      padding: 2px 8px;
+      border: 1px solid;
+      flex-shrink: 0;
+    }
+    .badge-format.dxf { color: var(--accent); border-color: var(--accent); }
+    .badge-format.ifc { color: var(--info);   border-color: var(--info); }
+
+    /* ── Error list ── */
+    .error-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .error-item {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--err);
+      padding: 0.5rem 0.75rem;
+      border-left: 2px solid var(--err);
+      background: rgba(255,59,59,0.04);
+      line-height: 1.6;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.25;
+      display: block;
+    }
+    .empty-state p {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    /* ── Log terminal ── */
+    .log-terminal {
+      margin-top: 1.25rem;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: #7ec8a0;
+      line-height: 1.7;
+      max-height: 140px;
+      overflow-y: auto;
+      display: none;
+    }
+    .log-terminal.visible { display: block; }
+    .log-line { display: block; }
+    .log-line.warn { color: #f0a500; }
+    .log-line.err  { color: var(--err); }
+    .log-line.info { color: var(--info); }
+
+    @media (max-width: 720px) {
+      main { grid-template-columns: 1fr; }
+      .page-title { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"><span>IA</span></div>
+  <div class="logo-text">INDUSTRIE <span>IA</span></div>
+  <nav>
+    <a href="/">M01 — Extraction</a>
+    <a href="/module2" class="active">M02 — CAD</a>
+  </nav>
+  <div class="header-badge">MODULE 2 — GÉNÉRATION CAD</div>
+</header>
+
+<main>
+  <div class="page-title-block">
+    <div class="page-title">Génération <span>CAD</span></div>
+    <div class="page-subtitle">// Produit les plans techniques DXF 2D + modèle IFC 3D à partir des spécifications extraites</div>
+  </div>
+
+  <!-- Pipeline tracker -->
+  <div class="pipeline-track">
+    <div class="pip-step done">
+      <div class="dot"></div>
+      M01 — Extraction PDF
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step active">
+      <div class="dot"></div>
+      M02 — Génération CAD
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M03 — Vidéo
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M04 — Sourcing
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M05 — Négociation
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M06 — TCO
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M07 — Business Plan
+    </div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step">
+      <div class="dot"></div>
+      M09 — Catalogue
+    </div>
+  </div>
+
+  <!-- Left: config panel -->
+  <div class="panel">
+    <div class="section-label">01 — Spécifications (Module 1)</div>
+
+    <div id="specsArea">
+      <div class="warning-box">
+        <strong>⚠ AUCUNE SPECS CHARGÉE</strong>
+        Lancez d'abord le Module 1 pour extraire les spécifications depuis un PDF, puis revenez ici.<br/>
+        Ou collez un JSON de specs ci-dessous.
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:1.5rem">02 — Formats à générer</div>
+
+    <div class="config-group">
+      <div class="format-toggles">
+        <button class="format-btn selected" id="btn-dxf" onclick="toggleFormat('dxf')">DXF 2D</button>
+        <button class="format-btn selected" id="btn-ifc" onclick="toggleFormat('ifc')">IFC 3D</button>
+      </div>
+    </div>
+
+    <div class="section-label">03 — JSON specs (optionnel)</div>
+    <div class="config-group">
+      <textarea id="specsJson"
+        placeholder='{"part": {"reference": "VB-DN100-PN40"}, "dimensions": {...}}'
+        style="
+          width:100%; height:90px; resize:vertical;
+          background:#0d1117; border:1px solid var(--border);
+          color:#7ec8a0; font-family:var(--mono); font-size:0.68rem;
+          padding:0.75rem; line-height:1.6; outline:none;
+        "
+      ></textarea>
+      <button onclick="loadFromJson()" style="
+        margin-top:0.4rem; font-family:var(--mono); font-size:0.65rem;
+        letter-spacing:0.1em; color:var(--accent); background:none;
+        border:1px solid rgba(240,165,0,0.3); padding:4px 12px; cursor:pointer;
+        text-transform:uppercase; transition: border-color 0.2s;
+      ">Charger JSON</button>
+    </div>
+
+    <button class="btn-generate" id="btnGenerate" onclick="runGeneration()">
+      ⚙ Générer les fichiers CAD
+    </button>
+
+    <div class="progress-bar" id="progressBar"><div class="progress-fill"></div></div>
+    <div class="status-line" id="statusLine">En attente…</div>
+  </div>
+
+  <!-- Right: output panel -->
+  <div class="panel blue" id="outputPanel">
+    <div class="section-label">04 — Fichiers générés</div>
+
+    <div id="outputContent">
+      <div class="empty-state">
+        <span class="empty-icon">📐</span>
+        <p>Aucun fichier généré.<br />Configurez les specs et<br />lancez la génération.</p>
+      </div>
+    </div>
+
+    <div class="log-terminal" id="logTerminal"></div>
+  </div>
+</main>
+
+<script>
+  const btnGenerate = document.getElementById('btnGenerate');
+  const progressBar = document.getElementById('progressBar');
+  const statusLine  = document.getElementById('statusLine');
+  const outputContent = document.getElementById('outputContent');
+  const logTerminal = document.getElementById('logTerminal');
+  const specsArea   = document.getElementById('specsArea');
+  const specsJsonTA = document.getElementById('specsJson');
+
+  let formats = { dxf: true, ifc: true };
+  let loadedSpecs = null;
+
+  // ── Check sessionStorage for specs from Module 1 ─────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const stored = sessionStorage.getItem('industrie_ia_specs');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        loadedSpecs = data;
+        renderSpecsPreview(data);
+        setStatus('Spécifications chargées depuis Module 1 ✓', 'ok');
+      } catch(e) {}
+    }
+  });
+
+  // ── Format toggle ─────────────────────────────────────────────────────────
+  function toggleFormat(fmt) {
+    formats[fmt] = !formats[fmt];
+    document.getElementById('btn-' + fmt).classList.toggle('selected', formats[fmt]);
+  }
+
+  // ── Load specs from JSON textarea ─────────────────────────────────────────
+  function loadFromJson() {
+    try {
+      const parsed = JSON.parse(specsJsonTA.value);
+      loadedSpecs = parsed;
+      renderSpecsPreview(parsed);
+      setStatus('JSON chargé manuellement ✓', 'ok');
+    } catch(e) {
+      setStatus('JSON invalide : ' + e.message, 'err');
+    }
+  }
+
+  // ── Render specs chips ────────────────────────────────────────────────────
+  function renderSpecsPreview(specs) {
+    const part = specs.part || {};
+    const dims = specs.dimensions || {};
+    const mech = specs.mechanical || {};
+
+    const items = [
+      { k: 'Référence',   v: part.reference   || '—', tag: 'PART' },
+      { k: 'DN',          v: dims.nominal_diameter_mm ? `DN ${dims.nominal_diameter_mm}` : '—', tag: 'DIM' },
+      { k: 'PN',          v: mech.nominal_pressure_bar ? `PN ${mech.nominal_pressure_bar} bar` : '—', tag: 'MECH' },
+      { k: 'Face à face', v: dims.face_to_face_mm ? `${dims.face_to_face_mm} mm` : '—', tag: 'DIM' },
+      { k: 'Type',        v: part.type || '—', tag: 'PART' },
+    ];
+
+    specsArea.innerHTML = `
+      <div class="specs-summary">
+        ${items.map(i => `
+          <div class="spec-chip">
+            <span class="chip-key">${i.k}</span>
+            <span class="chip-val">${i.v}</span>
+            <span class="chip-tag">${i.tag}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ── Status helper ─────────────────────────────────────────────────────────
+  function setStatus(msg, type) {
+    statusLine.textContent = msg;
+    statusLine.className = 'status-line ' + (type || '');
+  }
+
+  // ── Log terminal ──────────────────────────────────────────────────────────
+  function log(msg, type) {
+    logTerminal.classList.add('visible');
+    const line = document.createElement('span');
+    line.className = 'log-line ' + (type || '');
+    const ts = new Date().toTimeString().slice(0,8);
+    line.textContent = `[${ts}] ${msg}`;
+    logTerminal.appendChild(line);
+    logTerminal.appendChild(document.createElement('br'));
+    logTerminal.scrollTop = logTerminal.scrollHeight;
+  }
+
+  function clearLog() {
+    logTerminal.innerHTML = '';
+    logTerminal.classList.remove('visible');
+  }
+
+  // ── Main generation ───────────────────────────────────────────────────────
+  async function runGeneration() {
+    if (!loadedSpecs) {
+      setStatus('⚠ Chargez d\'abord des spécifications', 'err');
+      return;
+    }
+    if (!formats.dxf && !formats.ifc) {
+      setStatus('⚠ Sélectionnez au moins un format', 'err');
+      return;
+    }
+
+    btnGenerate.disabled = true;
+    progressBar.classList.add('visible');
+    clearLog();
+    setStatus('Envoi des specs au serveur…', 'info');
+
+    outputContent.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon" style="animation:spin 1s linear infinite;display:inline-block">⚙️</span>
+        <p>Génération en cours…<br/>
+        <span style="color:var(--accent)">DXF + IFC peuvent prendre 10–30 secondes.</span></p>
+      </div>`;
+
+    log('Démarrage génération CAD…');
+    log(`Formats demandés : ${Object.entries(formats).filter(([,v])=>v).map(([k])=>k.toUpperCase()).join(', ')}`);
+
+    try {
+      const response = await fetch('/api/generate-cad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          specs: loadedSpecs,
+          formats: formats,
+        }),
+      });
+
+      const data = await response.json();
+      progressBar.classList.remove('visible');
+
+      if (data.status === 'success' || data.status === 'partial') {
+        const outputs = data.cad_outputs || {};
+        const errors  = data.cad_errors  || [];
+
+        log(`Statut : ${data.status.toUpperCase()}`, data.status === 'success' ? '' : 'warn');
+
+        if (errors.length) {
+          errors.forEach(e => log(e, 'err'));
+        }
+
+        if (outputs.dxf) log(`DXF généré : ${outputs.dxf}`);
+        if (outputs.ifc) log(`IFC généré : ${outputs.ifc}`);
+
+        setStatus(
+          data.status === 'success'
+            ? `✓ Génération réussie — ${Object.values(outputs).filter(Boolean).length} fichier(s)`
+            : `⚠ Génération partielle — ${errors.length} erreur(s)`,
+          data.status === 'success' ? 'ok' : 'warn'
+        );
+
+        renderOutputs(outputs, errors, data);
+      } else {
+        const errors = data.cad_errors || [data.error || 'Erreur inconnue'];
+        errors.forEach(e => log(e, 'err'));
+        setStatus(`✗ Échec : ${errors[0]}`, 'err');
+        renderFailure(errors);
+      }
+
+    } catch (err) {
+      progressBar.classList.remove('visible');
+      log('Serveur inaccessible : ' + err.message, 'err');
+      setStatus(`✗ Serveur inaccessible : ${err.message}`, 'err');
+      renderFailure(['Impossible de contacter le serveur FastAPI (port 8000).']);
+    } finally {
+      btnGenerate.disabled = false;
+    }
+  }
+
+  // ── Render output files ───────────────────────────────────────────────────
+  function renderOutputs(outputs, errors, data) {
+    const cards = [];
+
+    if (outputs.dxf) {
+      cards.push(`
+        <div class="file-card" style="animation-delay:0s">
+          <div class="file-icon">📐</div>
+          <div class="file-meta">
+            <div class="file-name">${outputs.dxf.split(/[\\/]/).pop()}</div>
+            <div class="file-detail">Plan 2D technique — Vue de face + Vue de dessus + Cartouche</div>
+          </div>
+          <span class="badge-format dxf">DXF</span>
+          <span class="file-size">${data.sizes?.dxf || '—'}</span>
+        </div>
+      `);
+    }
+
+    if (outputs.ifc) {
+      cards.push(`
+        <div class="file-card" style="animation-delay:0.1s">
+          <div class="file-icon">🧊</div>
+          <div class="file-meta">
+            <div class="file-name">${outputs.ifc.split(/[\\/]/).pop()}</div>
+            <div class="file-detail">Modèle 3D IFC4 — Corps + Brides + Tige · Propriétés BIM</div>
+          </div>
+          <span class="badge-format ifc">IFC</span>
+          <span class="file-size">${data.sizes?.ifc || '—'}</span>
+        </div>
+      `);
+    }
+
+    const errHtml = errors.length ? `
+      <div class="error-list">
+        ${errors.map(e => `<div class="error-item">⚠ ${e}</div>`).join('')}
+      </div>` : '';
+
+    outputContent.innerHTML = cards.length
+      ? `<div class="output-files">${cards.join('')}</div>${errHtml}`
+      : `<div class="empty-state"><span class="empty-icon">⚠️</span><p>Aucun fichier produit.</p></div>${errHtml}`;
+  }
+
+  function renderFailure(errors) {
+    outputContent.innerHTML = `
+      <div style="margin-bottom:0.75rem; font-family:var(--mono); font-size:0.7rem; color:var(--err); letter-spacing:0.08em;">
+        ✗ GÉNÉRATION ÉCHOUÉE
+      </div>
+      <div class="error-list">
+        ${errors.map(e => `<div class="error-item">${e}</div>`).join('')}
+      </div>
+      <div style="margin-top:1rem; font-family:var(--mono); font-size:0.65rem; color:var(--muted); line-height:2;">
+        Causes possibles :<br/>
+        — Specs JSON incomplètes (clés manquantes)<br/>
+        — Module ezdxf ou ifcopenshell non installé<br/>
+        — Dossier outputs/ non accessible en écriture
+      </div>
+    `;
+  }
+</script>
+
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>
+
+</body>
+</html>

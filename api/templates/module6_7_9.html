@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INDUSTRIE IA — TCO · Business Plan · Catalogue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #0a0c0f;
+      --surface: #111418;
+      --border:  #1e2530;
+      --accent:  #f0a500;
+      --accent2: #e05c00;
+      --ok:      #00c896;
+      --err:     #ff3b3b;
+      --info:    #3b9eff;
+      --purple:  #a78bfa;
+      --text:    #c8d0dc;
+      --muted:   #4a5568;
+      --mono:    'Share Tech Mono', monospace;
+      --sans:    'Barlow Condensed', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative; z-index: 10;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2.5rem;
+      display: flex; align-items: center; gap: 2rem;
+      height: 64px;
+      background: linear-gradient(90deg, #0d1117, #111820);
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      border: 2px solid var(--accent);
+      transform: rotate(45deg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark span {
+      transform: rotate(-45deg);
+      font-family: var(--mono); font-size: 0.65rem;
+      color: var(--accent); letter-spacing: -1px;
+    }
+    .logo-text {
+      font-family: var(--sans); font-weight: 900;
+      font-size: 1.35rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #fff;
+    }
+    .logo-text span { color: var(--accent); }
+    nav { display: flex; gap: 0; margin-left: 2rem; }
+    nav a {
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; color: var(--muted);
+      padding: 0 1rem; height: 64px;
+      display: flex; align-items: center;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .header-badge {
+      margin-left: auto;
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--muted); letter-spacing: 0.08em;
+      border: 1px solid var(--border); padding: 4px 10px;
+    }
+
+    /* ── Main grid ── */
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .page-title {
+      font-family: var(--sans); font-weight: 900;
+      font-size: 2.5rem; letter-spacing: 0.05em;
+      text-transform: uppercase; color: #fff; line-height: 1;
+    }
+    .page-title span { color: var(--accent); }
+    .page-subtitle {
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.1em;
+    }
+
+    /* ── Pipeline tracker ── */
+    .pipeline-track {
+      display: flex; align-items: center;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.75rem 1.25rem;
+      overflow-x: auto; gap: 0;
+    }
+    .pip-step {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.68rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); white-space: nowrap;
+    }
+    .pip-step.done   { color: var(--ok); }
+    .pip-step.active { color: var(--accent); }
+    .pip-step .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
+    }
+    .pip-step.done .dot   { background: var(--ok); }
+    .pip-step.active .dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .pip-arrow { margin: 0 0.75rem; color: var(--border); font-family: var(--mono); font-size: 0.8rem; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.2em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── Step divider ── */
+    .step-divider {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 1rem;
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); margin: 0.5rem 0;
+    }
+    .step-divider::before, .step-divider::after {
+      content:''; flex:1; height:1px; background:var(--border);
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.75rem; position: relative;
+    }
+    .panel::before {
+      content:''; position:absolute; top:0; left:0;
+      width:3px; height:100%;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+    }
+    .panel.green::before  { background: linear-gradient(180deg, var(--ok),    #006644); }
+    .panel.blue::before   { background: linear-gradient(180deg, var(--info),  #0055cc); }
+    .panel.purple::before { background: linear-gradient(180deg, var(--purple),#6d28d9); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%; padding: 0.9rem;
+      background: var(--accent); color: #0a0c0f;
+      border: none; font-family: var(--sans); font-weight: 900;
+      font-size: 1rem; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.5rem;
+    }
+    .btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+    .btn-primary:not(:disabled):hover  { background: #ffb800; }
+    .btn-primary:not(:disabled):active { transform: scale(0.98); }
+
+    .btn-outline {
+      width: 100%; padding: 0.8rem;
+      background: transparent; color: var(--info);
+      border: 1px solid var(--info); font-family: var(--sans); font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s, color 0.2s; margin-top: 0.75rem;
+    }
+    .btn-outline:disabled { color: var(--muted); border-color: var(--muted); cursor: not-allowed; }
+    .btn-outline:not(:disabled):hover { background: var(--info); color: #0a0c0f; }
+
+    .btn-dl {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.68rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.45rem 1rem; border: 1px solid var(--border);
+      background: none; color: var(--text); cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-dl:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-dl.ok    { border-color: rgba(0,200,150,0.4); color: var(--ok); }
+
+    /* ── Progress ── */
+    .progress-bar {
+      height: 2px; background: var(--border);
+      margin-top: 1rem; overflow: hidden; display: none;
+    }
+    .progress-bar.visible { display: block; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      animation: progress-anim 1.5s ease-in-out infinite;
+    }
+    @keyframes progress-anim {
+      0%  { width:0%;  margin-left:0%; }
+      50% { width:60%; margin-left:20%; }
+      100%{ width:0%;  margin-left:100%; }
+    }
+
+    .status-line {
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--muted); margin-top: 0.75rem; min-height: 1.2em;
+    }
+    .status-line.ok   { color: var(--ok); }
+    .status-line.err  { color: var(--err); }
+    .status-line.info { color: var(--info); }
+
+    /* ── Log terminal ── */
+    .log-terminal {
+      margin-top: 1.25rem; background: #0d1117;
+      border: 1px solid var(--border); padding: 1rem;
+      font-family: var(--mono); font-size: 0.68rem;
+      color: #7ec8a0; line-height: 1.7;
+      max-height: 130px; overflow-y: auto; display: none;
+    }
+    .log-terminal.visible { display: block; }
+    .log-line { display: block; }
+    .log-line.warn { color: var(--accent); }
+    .log-line.err  { color: var(--err); }
+    .log-line.info { color: var(--info); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center; padding: 2.5rem 1rem;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.25; display: block; }
+    .empty-state p {
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--muted); line-height: 1.9;
+    }
+
+    /* ── KPI cards ── */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+    .kpi-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 0.85rem 0.75rem; text-align: center;
+      animation: card-in 0.35s ease both;
+    }
+    .kpi-val {
+      font-family: var(--sans); font-weight: 900;
+      font-size: 1.4rem; color: #fff; line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .kpi-val.accent { color: var(--accent); }
+    .kpi-val.ok     { color: var(--ok); }
+    .kpi-val.info   { color: var(--info); }
+    .kpi-lbl {
+      font-family: var(--mono); font-size: 0.58rem;
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* ── Supplier rows ── */
+    .supplier-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 0.5rem;
+      animation: card-in 0.3s ease both;
+    }
+    .supplier-row:last-child { margin-bottom: 0; }
+    .supplier-row .s-name {
+      font-family: var(--sans); font-weight: 700;
+      font-size: 0.95rem; color: #fff; flex: 1;
+    }
+    .supplier-row .s-price {
+      font-family: var(--mono); font-size: 0.8rem; color: var(--accent);
+    }
+    .supplier-row .s-tco {
+      font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+    }
+
+    /* ── Download grid ── */
+    .dl-grid {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;
+    }
+
+    /* ── Format pills ── */
+    .fmt-pill {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.1em; padding: 3px 10px;
+      border: 1px solid var(--border); color: var(--muted);
+    }
+    .fmt-pill.active { border-color: var(--ok); color: var(--ok); }
+
+    @keyframes card-in {
+      from { opacity:0; transform:translateY(6px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width: 720px) {
+      main { grid-template-columns: 1fr; }
+      .page-title { font-size: 1.8rem; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"><span>IA</span></div>
+  <div class="logo-text">INDUSTRIE <span>IA</span></div>
+  <nav>
+    <a href="/">M01 — Extraction</a>
+    <a href="/module2">M02 — CAD</a>
+    <a href="/module4_5">M04/05 — Sourcing</a>
+    <a href="/module6_7_9" class="active">M06/07/09 — TCO & Catalogue</a>
+  </nav>
+  <div class="header-badge">MODULE 6 · 7 · 9</div>
+</header>
+
+<main>
+
+  <!-- Title -->
+  <div class="full-width">
+    <div class="page-title">TCO · Business Plan · <span>Catalogue</span></div>
+    <div class="page-subtitle">// Calcul TCO World Bank · Business Plan PDF+Excel · Catalogue 5 formats</div>
+  </div>
+
+  <!-- Pipeline tracker -->
+  <div class="pipeline-track full-width">
+    <div class="pip-step done"><div class="dot"></div>M01 — Extraction</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step done"><div class="dot"></div>M02 — CAD</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step done"><div class="dot"></div>M04 — Sourcing</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step done"><div class="dot"></div>M05 — Négociation</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step active"><div class="dot"></div>M06 — TCO</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step active"><div class="dot"></div>M07 — Business Plan</div>
+    <div class="pip-arrow">──▶</div>
+    <div class="pip-step active"><div class="dot"></div>M09 — Catalogue</div>
+  </div>
+
+  <!-- ══ MODULE 6 — TCO ═════════════════════════════════════════════════════ -->
+  <div class="step-divider">Étape 1 — Calcul TCO (Module 6)</div>
+
+  <div class="panel">
+    <div class="section-label">01 — Lancer le calcul TCO</div>
+
+    <!-- Info chargée depuis M5 -->
+    <div id="tcoOffersInfo" style="
+      background:rgba(240,165,0,0.05); border:1px solid rgba(240,165,0,0.15);
+      padding:0.85rem 1rem; margin-bottom:1.25rem;
+      font-family:var(--mono); font-size:0.72rem; line-height:1.9;
+    ">
+      <span style="color:var(--muted);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;">
+        Offres Module 5
+      </span><br/>
+      <span id="offersLabel" style="color:var(--accent)">Chargement…</span>
+    </div>
+
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.8;margin-bottom:1.25rem;">
+      Calcule le <strong style="color:var(--text)">TCO sur 10 ans</strong> pour chaque fournisseur
+      en intégrant les données d'inflation de la
+      <strong style="color:var(--text)">Banque Mondiale</strong> (Algérie).
+      Génère un rapport <strong style="color:var(--text)">Excel</strong> multi-onglets avec graphiques.
+    </p>
+
+    <button class="btn-primary" id="btnTCO" onclick="runTCO()">
+      📊 Calculer le TCO
+    </button>
+
+    <div class="progress-bar" id="progTCO"><div class="progress-fill"></div></div>
+    <div class="status-line" id="statusTCO">En attente…</div>
+    <div class="log-terminal" id="logTCO"></div>
+  </div>
+
+  <div class="panel green">
+    <div class="section-label">02 — Résultats TCO</div>
+    <div id="tcoContent">
+      <div class="empty-state">
+        <span class="empty-icon">📊</span>
+        <p>Le TCO apparaîtra ici<br/>après le calcul.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODULE 7 — BUSINESS PLAN ══════════════════════════════════════════ -->
+  <div class="step-divider">Étape 2 — Business Plan (Module 7)</div>
+
+  <div class="panel blue">
+    <div class="section-label">03 — Générer le Business Plan</div>
+
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.8;margin-bottom:1.25rem;">
+      Génère un <strong style="color:var(--text)">Business Plan complet</strong> :
+      SWOT via <strong style="color:var(--text)">Mistral</strong>, projections 3 ans,
+      VAN, ROI, TRI. Sortie <strong style="color:var(--text)">PDF + Excel</strong>.
+    </p>
+
+    <div id="bpPreInfo" style="
+      font-family:var(--mono); font-size:0.68rem; color:var(--muted);
+      border:1px solid var(--border); padding:0.75rem 1rem; margin-bottom:1.25rem; line-height:1.8;
+    ">⚠ Complétez d'abord le TCO pour activer cette étape.</div>
+
+    <button class="btn-primary" id="btnBP" onclick="runBusinessPlan()" disabled>
+      📄 Générer le Business Plan
+    </button>
+
+    <div class="progress-bar" id="progBP"><div class="progress-fill"></div></div>
+    <div class="status-line" id="statusBP">En attente du TCO…</div>
+    <div class="log-terminal" id="logBP"></div>
+  </div>
+
+  <div class="panel purple">
+    <div class="section-label">04 — Résultats Business Plan</div>
+    <div id="bpContent">
+      <div class="empty-state">
+        <span class="empty-icon">📄</span>
+        <p>Le Business Plan<br/>apparaîtra ici après<br/>la génération.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODULE 9 — CATALOGUE ═══════════════════════════════════════════════ -->
+  <div class="step-divider">Étape 3 — Catalogue multi-format (Module 9)</div>
+
+  <div class="panel">
+    <div class="section-label">05 — Générer le Catalogue</div>
+
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.8;margin-bottom:1.25rem;">
+      Compile toutes les données en un
+      <strong style="color:var(--text)">catalogue produit complet</strong>
+      exporté en <strong style="color:var(--text)">5 formats</strong> :
+      PDF · HTML · Excel · JSON · XML.
+    </p>
+
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <span class="fmt-pill" id="pill-pdf">PDF</span>
+      <span class="fmt-pill" id="pill-html">HTML</span>
+      <span class="fmt-pill" id="pill-xlsx">EXCEL</span>
+      <span class="fmt-pill" id="pill-json">JSON</span>
+      <span class="fmt-pill" id="pill-xml">XML</span>
+    </div>
+
+    <div id="catPreInfo" style="
+      font-family:var(--mono); font-size:0.68rem; color:var(--muted);
+      border:1px solid var(--border); padding:0.75rem 1rem; margin-bottom:1.25rem; line-height:1.8;
+    ">⚠ Complétez d'abord le Business Plan pour activer cette étape.</div>
+
+    <button class="btn-primary" id="btnCat" onclick="runCatalogue()" disabled>
+      📦 Générer le Catalogue
+    </button>
+
+    <div class="progress-bar" id="progCat"><div class="progress-fill"></div></div>
+    <div class="status-line" id="statusCat">En attente du Business Plan…</div>
+    <div class="log-terminal" id="logCat"></div>
+  </div>
+
+  <div class="panel green">
+    <div class="section-label">06 — Fichiers générés</div>
+    <div id="catContent">
+      <div class="empty-state">
+        <span class="empty-icon">📦</span>
+        <p>Les 5 fichiers du catalogue<br/>apparaîtront ici après<br/>la génération.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── State partagé entre les 3 modules ─────────────────────────────────────
+  let loadedSpecs  = null;
+  let loadedOffers = null;
+  let tcoResult    = null;
+  let bpResult     = null;
+
+  // ── Init : charger specs + offres depuis sessionStorage (M1 + M5) ─────────
+  window.addEventListener('DOMContentLoaded', () => {
+    // Specs depuis M1
+    try {
+      const s = sessionStorage.getItem('industrie_ia_specs');
+      if (s) loadedSpecs = JSON.parse(s);
+    } catch(e) {}
+
+    // Offres depuis M5
+    try {
+      const o = sessionStorage.getItem('industrie_ia_offers');
+      if (o) loadedOffers = JSON.parse(o);
+    } catch(e) {}
+
+    // Afficher info offres
+    const label = document.getElementById('offersLabel');
+    if (loadedOffers && loadedOffers.length) {
+      label.textContent = `${loadedOffers.length} offre(s) — meilleur prix : ${
+        Number(Math.min(...loadedOffers.map(o=>o.unit_price))).toLocaleString('fr-DZ')
+      } DZD`;
+      label.style.color = 'var(--ok)';
+    } else {
+      label.textContent = 'Aucune offre M5 — les données mock seront utilisées';
+      label.style.color = 'var(--accent)';
+    }
+  });
+
+  // ── Logger ────────────────────────────────────────────────────────────────
+  function log(termId, msg, type) {
+    const t = document.getElementById(termId);
+    t.classList.add('visible');
+    const line = document.createElement('span');
+    line.className = 'log-line ' + (type || '');
+    line.textContent = `[${new Date().toTimeString().slice(0,8)}] ${msg}`;
+    t.appendChild(line);
+    t.appendChild(document.createElement('br'));
+    t.scrollTop = t.scrollHeight;
+  }
+  function clearLog(id) {
+    const t = document.getElementById(id);
+    t.innerHTML = ''; t.classList.remove('visible');
+  }
+  function setStatus(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status-line ' + (type || '');
+  }
+
+  // ══ MODULE 6 — TCO ════════════════════════════════════════════════════════
+  async function runTCO() {
+    const btn = document.getElementById('btnTCO');
+    btn.disabled = true;
+    document.getElementById('progTCO').classList.add('visible');
+    clearLog('logTCO');
+    setStatus('statusTCO', 'Calcul TCO en cours…', 'info');
+    log('logTCO', 'Récupération inflation World Bank…');
+    log('logTCO', 'Calcul TCO sur 10 ans…');
+
+    try {
+      const body = {
+        specs:           loadedSpecs  || {},
+        final_offers:    loadedOffers || [],
+        sourcing_results:{},
+        quantite: 200,
+        years: 10,
+      };
+
+      const res  = await fetch('/api/tco', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      document.getElementById('progTCO').classList.remove('visible');
+
+      if (data.status === 'success') {
+        tcoResult = data;
+        setStatus('statusTCO', `✓ TCO calculé — inflation moy. ${data.inflation_moyenne}%`, 'ok');
+        log('logTCO', `Inflation moyenne : ${data.inflation_moyenne}%`);
+        log('logTCO', `Excel : ${data.tco_excel_path}`);
+        renderTCO(data);
+
+        // Activer M7
+        document.getElementById('btnBP').disabled = false;
+        document.getElementById('bpPreInfo').innerHTML =
+          `<span style="color:var(--ok)">✓ TCO complété</span> — Business Plan prêt à être généré.`;
+      } else {
+        setStatus('statusTCO', `✗ Erreur TCO`, 'err');
+        log('logTCO', JSON.stringify(data.errors || data.error || '?'), 'err');
+      }
+    } catch(e) {
+      document.getElementById('progTCO').classList.remove('visible');
+      setStatus('statusTCO', '✗ Serveur inaccessible', 'err');
+      log('logTCO', e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderTCO(data) {
+    const tco      = data.tco || {};
+    const allTco   = data.all_tco || [];
+    const infl     = data.inflation_moyenne || 0;
+
+    const kpis = `
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val accent">${Number(tco.total_tco||0).toLocaleString('fr-DZ')}</div>
+          <div class="kpi-lbl">TCO total (DZD)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val info">${infl}%</div>
+          <div class="kpi-lbl">Inflation moy.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val ok">${allTco.length}</div>
+          <div class="kpi-lbl">Fournisseurs</div>
+        </div>
+      </div>`;
+
+    const rows = allTco.map((item, i) => {
+      const info = item.supplier_info || {};
+      const res  = item.tco_result   || {};
+      return `
+        <div class="supplier-row" style="animation-delay:${i*0.06}s">
+          <div class="s-name">${info.nom_fournisseur || '—'}</div>
+          <div class="s-price">${Number(info.prix_unitaire||0).toLocaleString('fr-DZ')} DZD/u</div>
+          <div class="s-tco">TCO: ${Number(res.total_tco||0).toLocaleString('fr-DZ')}</div>
+        </div>`;
+    }).join('');
+
+    const dlBtn = `
+      <div class="dl-grid">
+        <a href="/api/tco/download" class="btn-dl ok">⬇ Excel TCO</a>
+      </div>`;
+
+    document.getElementById('tcoContent').innerHTML = kpis + rows + dlBtn;
+  }
+
+  // ══ MODULE 7 — BUSINESS PLAN ══════════════════════════════════════════════
+  async function runBusinessPlan() {
+    const btn = document.getElementById('btnBP');
+    btn.disabled = true;
+    document.getElementById('progBP').classList.add('visible');
+    clearLog('logBP');
+    setStatus('statusBP', 'Génération en cours… (SWOT Mistral)', 'info');
+    log('logBP', 'Génération SWOT via Mistral…');
+    log('logBP', 'Calcul VAN, ROI, TRI…');
+    log('logBP', 'Compilation PDF + Excel…');
+
+    try {
+      const body = {
+        specs:             loadedSpecs || {},
+        suppliers:         (tcoResult?.all_tco || []).map(i => i.supplier_info),
+        tco:               tcoResult?.tco || {},
+        all_tco:           tcoResult?.all_tco || [],
+        inflation_moyenne: tcoResult?.inflation_moyenne || 5.2,
+      };
+
+      const res  = await fetch('/api/business-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      document.getElementById('progBP').classList.remove('visible');
+
+      if (data.status === 'success') {
+        bpResult = data;
+        setStatus('statusBP', '✓ Business Plan généré — PDF + Excel', 'ok');
+        log('logBP', `PDF : ${data.business_plan_pdf}`);
+        log('logBP', `Excel : ${data.business_plan_excel}`);
+        renderBusinessPlan(data);
+
+        // Activer M9
+        document.getElementById('btnCat').disabled = false;
+        document.getElementById('catPreInfo').innerHTML =
+          `<span style="color:var(--ok)">✓ Business Plan complété</span> — Catalogue prêt à être généré.`;
+      } else {
+        setStatus('statusBP', '✗ Erreur Business Plan', 'err');
+        log('logBP', JSON.stringify(data.errors || data.error || '?'), 'err');
+      }
+    } catch(e) {
+      document.getElementById('progBP').classList.remove('visible');
+      setStatus('statusBP', '✗ Serveur inaccessible', 'err');
+      log('logBP', e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderBusinessPlan(data) {
+    const fin  = data.finance || {};
+    const kpis = `
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val ok">${fin.roi_pct || 0}%</div>
+          <div class="kpi-lbl">ROI (3 ans)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val info">+${Number(fin.van_dzd||0).toLocaleString('fr-DZ')}</div>
+          <div class="kpi-lbl">VAN (DZD)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val accent">${fin.tri_pct || 0}%</div>
+          <div class="kpi-lbl">TRI</div>
+        </div>
+      </div>`;
+
+    const dlBtns = `
+      <div class="dl-grid">
+        <a href="/api/business-plan/download/pdf"   class="btn-dl ok">⬇ PDF</a>
+        <a href="/api/business-plan/download/excel" class="btn-dl ok">⬇ Excel</a>
+      </div>`;
+
+    document.getElementById('bpContent').innerHTML = kpis + dlBtns;
+  }
+
+  // ══ MODULE 9 — CATALOGUE ══════════════════════════════════════════════════
+  async function runCatalogue() {
+    const btn = document.getElementById('btnCat');
+    btn.disabled = true;
+    document.getElementById('progCat').classList.add('visible');
+    clearLog('logCat');
+    setStatus('statusCat', 'Génération catalogue 5 formats…', 'info');
+    log('logCat', 'Compilation PDF, HTML, Excel, JSON, XML…');
+
+    // Activer les pills en attente
+    ['pdf','html','xlsx','json','xml'].forEach(f =>
+      document.getElementById('pill-'+f).classList.remove('active'));
+
+    try {
+      const body = {
+        specs:     loadedSpecs || {},
+        suppliers: (tcoResult?.all_tco || []).map(i => i.supplier_info),
+        all_tco:   tcoResult?.all_tco   || [],
+        finance:   bpResult?.finance    || {},
+        swot:      bpResult?.swot       || {},
+      };
+
+      const res  = await fetch('/api/catalogue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      document.getElementById('progCat').classList.remove('visible');
+
+      if (data.status === 'success') {
+        setStatus('statusCat', `✓ ${data.catalogue_files?.length || 5} fichiers générés`, 'ok');
+        data.catalogue_files?.forEach(f => {
+          const ext = f.split('.').pop();
+          const pill = document.getElementById('pill-' + ext);
+          if (pill) pill.classList.add('active');
+          log('logCat', `✓ ${f}`);
+        });
+        renderCatalogue(data);
+      } else {
+        setStatus('statusCat', '✗ Erreur catalogue', 'err');
+        log('logCat', JSON.stringify(data.errors || data.error || '?'), 'err');
+      }
+    } catch(e) {
+      document.getElementById('progCat').classList.remove('visible');
+      setStatus('statusCat', '✗ Serveur inaccessible', 'err');
+      log('logCat', e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderCatalogue(data) {
+    const formats = [
+      { ext:'pdf',  icon:'📄', label:'Catalogue PDF',   color:'var(--err)' },
+      { ext:'html', icon:'🌐', label:'Catalogue HTML',  color:'var(--accent)' },
+      { ext:'xlsx', icon:'📊', label:'Catalogue Excel', color:'var(--ok)' },
+      { ext:'json', icon:'📋', label:'Catalogue JSON',  color:'var(--info)' },
+      { ext:'xml',  icon:'🗂',  label:'Catalogue XML',   color:'var(--purple)' },
+    ];
+
+    const cards = formats.map((f, i) => `
+      <div class="supplier-row" style="animation-delay:${i*0.07}s">
+        <span style="font-size:1.4rem">${f.icon}</span>
+        <div class="s-name" style="color:${f.color}">${f.label}</div>
+        <a href="/api/catalogue/download/${f.ext}" class="btn-dl ok">⬇ Télécharger</a>
+      </div>`).join('');
+
+    document.getElementById('catContent').innerHTML = `
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--ok);
+                  margin-bottom:1rem;letter-spacing:0.08em;">
+        ✓ PIPELINE COMPLET — TOUS LES MODULES TERMINÉS
+      </div>
+      ${cards}`;
+  }
+</script>
+
+</body>
+</html>

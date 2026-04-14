@@ -30,7 +30,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Grid background ── */
     body::before {
       content: '';
       position: fixed;
@@ -43,7 +42,6 @@
       z-index: 0;
     }
 
-    /* ── Header ── */
     header {
       position: relative;
       z-index: 10;
@@ -81,6 +79,28 @@
     }
     .logo-text span { color: var(--accent); }
 
+    nav {
+      display: flex;
+      gap: 0;
+      margin-left: 2rem;
+    }
+    nav a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--muted);
+      padding: 0 1rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
     .header-badge {
       margin-left: auto;
       font-family: var(--mono);
@@ -91,7 +111,6 @@
       padding: 4px 10px;
     }
 
-    /* ── Main layout ── */
     main {
       position: relative;
       z-index: 1;
@@ -104,7 +123,6 @@
       align-items: start;
     }
 
-    /* ── Section title ── */
     .section-label {
       font-family: var(--mono);
       font-size: 0.65rem;
@@ -123,7 +141,6 @@
       background: var(--border);
     }
 
-    /* ── Panel ── */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -138,7 +155,6 @@
       background: linear-gradient(180deg, var(--accent), var(--accent2));
     }
 
-    /* ── Upload zone ── */
     .upload-zone {
       border: 1px dashed var(--muted);
       padding: 2.5rem 1.5rem;
@@ -184,7 +200,6 @@
       color: var(--muted);
     }
 
-    /* ── File info ── */
     .file-info {
       display: none;
       align-items: center;
@@ -200,7 +215,6 @@
     .file-info .file-name { color: var(--accent); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .file-info .file-size { color: var(--muted); }
 
-    /* ── Button ── */
     .btn-extract {
       width: 100%;
       padding: 0.9rem;
@@ -224,7 +238,6 @@
     .btn-extract:not(:disabled):hover { background: #ffb800; }
     .btn-extract:not(:disabled):active { transform: scale(0.98); }
 
-    /* ── Progress bar ── */
     .progress-bar {
       height: 2px;
       background: var(--border);
@@ -246,7 +259,6 @@
       100% { width: 0%; margin-left: 100%; }
     }
 
-    /* ── Status ── */
     .status-line {
       font-family: var(--mono);
       font-size: 0.72rem;
@@ -258,7 +270,6 @@
     .status-line.ok  { color: var(--ok); }
     .status-line.err { color: var(--err); }
 
-    /* ── Result panel ── */
     .result-header {
       display: flex;
       align-items: center;
@@ -293,7 +304,6 @@
       letter-spacing: 0.1em;
     }
 
-    /* ── Spec table ── */
     .spec-table {
       width: 100%;
       border-collapse: collapse;
@@ -332,7 +342,6 @@
       font-style: italic;
     }
 
-    /* ── JSON raw view ── */
     .json-toggle {
       margin-top: 1.25rem;
       font-family: var(--mono);
@@ -365,7 +374,29 @@
     }
     .json-raw.visible { display: block; }
 
-    /* ── Empty state ── */
+    /* ── Bouton Module 2 ── */
+    .btn-next {
+      display: block;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.8rem;
+      background: transparent;
+      color: var(--ok);
+      border: 1px solid var(--ok);
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-next:hover {
+      background: var(--ok);
+      color: #0a0c0f;
+    }
+
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -382,7 +413,6 @@
       line-height: 1.8;
     }
 
-    /* ── Page title ── */
     .page-title-block {
       grid-column: 1 / -1;
       margin-bottom: 0.5rem;
@@ -405,7 +435,6 @@
       letter-spacing: 0.1em;
     }
 
-    /* ── Copy button ── */
     .btn-copy {
       font-family: var(--mono);
       font-size: 0.65rem;
@@ -430,17 +459,21 @@
 <header>
   <div class="logo-mark"><span>IA</span></div>
   <div class="logo-text">INDUSTRIE <span>IA</span></div>
+  <nav>
+    <a href="/" class="active">M01 — Extraction</a>
+    <a href="/module2">M02 — CAD</a>
+    <a href="/module4_5">M04 — Module 4</a> <!-- Ajoute ce lien -->
+<a href="/module6_7_9">M06/07/09 — TCO & Catalogue</a>
+  </nav>
   <div class="header-badge">MODULE 1 — EXTRACTION</div>
 </header>
 
 <main>
-  <!-- Page title -->
   <div class="page-title-block">
     <div class="page-title">Extraction de <span>Spécifications</span></div>
     <div class="page-subtitle">// Uploadez un plan PDF — le LLM extrait les données techniques automatiquement</div>
   </div>
 
-  <!-- Upload panel -->
   <div class="panel">
     <div class="section-label">01 — Importer le PDF</div>
 
@@ -468,7 +501,6 @@
     <div class="status-line" id="statusLine">En attente d'un fichier...</div>
   </div>
 
-  <!-- Result panel -->
   <div class="panel">
     <div class="section-label">02 — Spécifications extraites</div>
 
@@ -482,27 +514,25 @@
 </main>
 
 <script>
-  const fileInput  = document.getElementById('fileInput');
-  const dropZone   = document.getElementById('dropZone');
-  const fileInfo   = document.getElementById('fileInfo');
-  const fileName   = document.getElementById('fileName');
-  const fileSize   = document.getElementById('fileSize');
-  const btnExtract = document.getElementById('btnExtract');
-  const progressBar = document.getElementById('progressBar');
-  const statusLine = document.getElementById('statusLine');
+  const fileInput     = document.getElementById('fileInput');
+  const dropZone      = document.getElementById('dropZone');
+  const fileInfo      = document.getElementById('fileInfo');
+  const fileName      = document.getElementById('fileName');
+  const fileSize      = document.getElementById('fileSize');
+  const btnExtract    = document.getElementById('btnExtract');
+  const progressBar   = document.getElementById('progressBar');
+  const statusLine    = document.getElementById('statusLine');
   const resultContent = document.getElementById('resultContent');
 
   let selectedFile = null;
-  let jsonVisible = false;
+  let jsonVisible  = false;
 
-  // ── Formatage taille fichier ──────────────────────────────────────────────
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  // ── Sélection fichier ─────────────────────────────────────────────────────
   function handleFile(file) {
     if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
       setStatus('Seuls les fichiers PDF sont acceptés.', 'err');
@@ -523,8 +553,7 @@
 
   fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
 
-  // ── Drag & Drop ───────────────────────────────────────────────────────────
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
   dropZone.addEventListener('drop', e => {
     e.preventDefault();
@@ -532,13 +561,11 @@
     handleFile(e.dataTransfer.files[0]);
   });
 
-  // ── Status helper ─────────────────────────────────────────────────────────
   function setStatus(msg, type) {
     statusLine.textContent = msg;
     statusLine.className = 'status-line ' + (type || '');
   }
 
-  // ── Extraction principale ─────────────────────────────────────────────────
   async function runExtraction() {
     if (!selectedFile) return;
 
@@ -548,7 +575,7 @@
 
     resultContent.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon" style="animation: spin 1s linear infinite; display:inline-block">⚙️</div>
+        <div class="empty-icon" style="animation:spin 1s linear infinite;display:inline-block">⚙️</div>
         <p>Analyse en cours...<br/>Le LLM (Mistral) analyse le PDF.<br/><span style="color:var(--accent)">Cela peut prendre 30–60 secondes.</span></p>
       </div>`;
 
@@ -564,11 +591,14 @@
       });
 
       const data = await response.json();
-
       progressBar.classList.remove('visible');
 
       if (data.status === 'success') {
         setStatus(`✓ Extraction réussie — ${Object.keys(data.specs).length} champs extraits`, 'ok');
+
+        // ── SAUVEGARDE DES SPECS POUR MODULE 2 ──────────────────────────────
+        sessionStorage.setItem('industrie_ia_specs', JSON.stringify(data.specs));
+
         renderSpecs(data.specs, data.filename);
       } else {
         setStatus(`✗ Erreur : ${data.error}`, 'err');
@@ -584,7 +614,6 @@
     }
   }
 
-  // ── Affichage specs ───────────────────────────────────────────────────────
   function renderSpecs(specs, filename) {
     const labels = {
       diametre_nominal:     'Diamètre nominal',
@@ -596,7 +625,7 @@
     };
 
     const rows = Object.entries(specs).map(([k, v], i) => {
-      const label = labels[k] || k.replace(/_/g, ' ');
+      const label   = labels[k] || k.replace(/_/g, ' ');
       const isEmpty = !v || v === 'Non spécifié';
       return `
         <tr style="animation-delay: ${i * 0.05}s">
@@ -622,10 +651,14 @@
         <button class="btn-copy" onclick="copyJson()">COPIER</button>
       </div>
       <pre class="json-raw" id="jsonRaw">${jsonStr}</pre>
+
+      <!-- ── BOUTON VERS MODULE 2 ── -->
+      <a href="/module2" class="btn-next">
+        → Générer les plans CAD (Module 2)
+      </a>
     `;
   }
 
-  // ── Affichage erreur ──────────────────────────────────────────────────────
   function renderError(message) {
     resultContent.innerHTML = `
       <div class="result-header">
@@ -644,16 +677,14 @@
     `;
   }
 
-  // ── Toggle JSON ───────────────────────────────────────────────────────────
   function toggleJson() {
-    const raw = document.getElementById('jsonRaw');
+    const raw   = document.getElementById('jsonRaw');
     const arrow = document.getElementById('jsonArrow');
     jsonVisible = !jsonVisible;
     raw.classList.toggle('visible', jsonVisible);
     arrow.textContent = jsonVisible ? '▼' : '▶';
   }
 
-  // ── Copy JSON ─────────────────────────────────────────────────────────────
   function copyJson() {
     const raw = document.getElementById('jsonRaw');
     if (!raw) return;

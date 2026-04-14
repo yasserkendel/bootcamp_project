@@ -1,7 +1,34 @@
 {
-  "product_name": "High Pressure Valve DN300",
-  "material_required": "Stainless Steel 316L",
-  "quantity": 300,
-  "target_pressure": "40 Bar",
-  "status": "extracted_successfully"
+  "item": "DN100",
+  "quantity": "200",
+  "specs": {
+    "diametre_nominal": "DN100",
+    "pression_nominale": "40 bar",
+    "materiau": {
+      "corps": "Fonte GS 400-15 EN 1561",
+      "disque": "Inox 316L EN 10088-3",
+      "siège": "PTFE ASTM D3295",
+      "tige": "Inox 316 EN 10088-3",
+      "joint": "EPDM ASTM D2000"
+    },
+    "longueur_face_a_face": "229 mm",
+    "tolerance": {
+      "A": "+1.0mm, -1.0mm",
+      "B": "+0.5mm, -0.5mm",
+      "C": "+0.2mm, 0.0mm, -0.0mm",
+      "D": "8",
+      "E": "+0.3mm, -0.3mm",
+      "F": "+0.5mm, -0.2mm",
+      "G": "+2.0mm, -2.0mm",
+      "H": "+1.5mm, -1.5mm"
+    },
+    "norme": {
+      "fabrication": "EN 593 - Vannes papillon",
+      "face_a_face": "EN 558 - Séries 20/25",
+      "brides": "EN 1092-1 - PN40",
+      "etancheteite": "ISO 5208 - Catégorie A",
+      "marquage": "EN 19",
+      "pression_de_calcul": "ASME B16.34"
+    }
+  }
 }
